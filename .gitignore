@@ -1,0 +1,12 @@
+fractal.includes
+fractal.files
+fractal.creator
+fractal.creator.user
+fractal.config
+
+android/bin
+android/obj
+android/gen
+
+desktop/obj
+desktop/app
