@@ -2,6 +2,9 @@
 
 #include <media/media.h>
 #include "renderer.hpp"
+#include "mandelbrot32.hpp"
+#include "mandelbrot64.hpp"
+#include "mandelbrot128.hpp"
 
 struct State
 {
@@ -46,7 +49,8 @@ void handleSurfaceEvent(Media_App *app, const Media_SurfaceEvent *event)
 	{
 	case MEDIA_SURFACE_INIT:
 		printInfo("Init surface\n");
-		state->rend = new Renderer();
+		state->rend = new Mandelbrot128();
+		state->rend->transform(0.0,0.01);
 		break;
 	case MEDIA_SURFACE_TERM:
 		printInfo("Term surface\n");
@@ -75,6 +79,12 @@ void handleMotionEvent(Media_App *app, const Media_MotionEvent *event)
 		break;
 	case MEDIA_ACTION_DOWN:
 		//printInfo("Down\n");
+		state->rend->transform(
+			state->rend->getPosition() + state->rend->getFactor()*creal(real(event->x) - 0.5l*state->rend->getWidth(),0.5l*state->rend->getHeight() - real(event->y)),
+			state->rend->getFactor()*0.5l
+		);
+		printInfo("%le\n",double(state->rend->getFactor().re()));
+		state->ready = true;
 		break;
 	case MEDIA_ACTION_MOVE:
 		//printInfo("Move\n");
@@ -103,6 +113,7 @@ void render(Media_App *app)
 	if(state->rend)
 	{
 		state->rend->render();
+		state->ready = false;
 	}
 }
 
@@ -131,14 +142,12 @@ int Media_main(Media_App *app)
 		{
 			break;
 		}
-
+		
 		if(state.ready)
 		{
-			
+			// printInfo("Frame\n");
+			Media_renderFrame(app);
 		}
-
-		// printInfo("Frame\n");
-		Media_renderFrame(app);
 	}
 
 	return 0;

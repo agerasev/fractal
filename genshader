@@ -1,0 +1,26 @@
+#!/bin/bash
+
+function gen {
+	if [ $2 -nt $1 ] || [ $3 -nt $1 ]; then	
+		> $1
+		echo 'static const char *'$4'_SHADER_SOURCE =' >> $1
+		awk '{print "\"" $0 "\\n\"";}' $2 >> $1
+		echo ';' >> $1
+		echo 'static const char *'$5'_SHADER_SOURCE =' >> $1
+		awk '{print "\"" $0 "\\n\"";}' $3 >> $1
+		echo ';' >> $1
+	fi
+}
+
+MAIN_VERT=./source/shader/main.vert
+MANDEL32_FRAG=./source/shader/mandel32.frag
+MANDEL64_FRAG=./source/shader/mandel64.frag
+MANDEL128_FRAG=./source/shader/mandel128.frag
+
+MANDEL32_H=./source/shader/mandel32.h
+MANDEL64_H=./source/shader/mandel64.h
+MANDEL128_H=./source/shader/mandel128.h
+
+gen $MANDEL32_H  $MAIN_VERT $MANDEL32_FRAG  'MAIN_VERT' 'MANDEL32'
+gen $MANDEL64_H  $MAIN_VERT $MANDEL64_FRAG  'MAIN_VERT' 'MANDEL64'
+gen $MANDEL128_H $MAIN_VERT $MANDEL128_FRAG 'MAIN_VERT' 'MANDEL128'

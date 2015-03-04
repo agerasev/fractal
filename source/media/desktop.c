@@ -37,10 +37,12 @@ static void pushMotionEvent(Media_App *app, const Media_MotionEvent *event)
 {
 	if(app->listeners.motion) { app->listeners.motion(app,event); }
 }
+/*
 static void pushSensorEvent(Media_App *app, const Media_SensorEvent *event) 
 {
 	if(app->listeners.sensor) { app->listeners.sensor(app,event); }
 }
+*/
 
 int __initDisplay(PlatformContext *context)
 {
@@ -73,7 +75,7 @@ int __initDisplay(PlatformContext *context)
 		return -2;
 	}
 
-	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER,1);
+	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER,0);
 	SDL_GL_SetAttribute(SDL_GL_RED_SIZE,5);
 	SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE,6);
 	SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE,5);

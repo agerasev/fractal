@@ -10,3 +10,5 @@ android/gen
 
 desktop/obj
 desktop/app
+
+source/shader/*.h

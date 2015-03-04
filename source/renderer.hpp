@@ -7,26 +7,31 @@
 
 class Renderer
 {
-private:
-    GLuint buffer;
-    
-    GLuint program;
-    GLuint vertex_shader;
-    GLuint fragment_shader;
-    GLint position_uniform;
-    GLint factor_uniform;
-    GLint shape_attrib;
-    
-    creal position;
-    creal factor;
+protected:
+	GLuint buffer;
+	
+	GLuint program;
+	GLuint vertex_shader;
+	GLuint fragment_shader;
+	GLint shape_attrib;
+	GLint aspect_uniform;
+	
+	int width, height;
+	
+	creal position;
+	creal factor;
     
 public:
-    Renderer();
-    virtual ~Renderer();
-    
-    void resize(int w, int h);
-    
-    void transform(creal p, creal f);
-    
-    virtual void render(); // = 0;
+	Renderer(const char *vs, const char *fs);
+	virtual ~Renderer();
+	
+	virtual void resize(int w, int h);
+	int getWidth() const;
+	int getHeight() const;
+	
+	void transform(creal p, creal f);
+	creal getPosition() const;
+	creal getFactor() const;
+	
+	virtual void render() = 0;
 };

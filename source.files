@@ -5,3 +5,16 @@ source/main.cpp
 source/renderer.cpp
 source/renderer.hpp
 source/complex.hpp
+source/shader/main.vert
+source/shader/mandel32.frag
+source/shader/mandel64.frag
+source/shader/mandel128.frag
+source/mandelbrot32.hpp
+source/mandelbrot64.hpp
+source/mandelbrot32.cpp
+source/mandelbrot64.cpp
+source/shader/mandel32.h
+source/shader/mandel64.h
+source/shader/mandel128.h
+source/mandelbrot128.hpp
+source/mandelbrot128.cpp
