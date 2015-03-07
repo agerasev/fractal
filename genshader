@@ -16,11 +16,15 @@ MAIN_VERT=./source/shader/main.vert
 MANDEL32_FRAG=./source/shader/mandel32.frag
 MANDEL64_FRAG=./source/shader/mandel64.frag
 MANDEL128_FRAG=./source/shader/mandel128.frag
+TEXTURE_VERT=./source/shader/texture.vert
+TEXTURE_FRAG=./source/shader/texture.frag
 
 MANDEL32_H=./source/shader/mandel32.h
 MANDEL64_H=./source/shader/mandel64.h
 MANDEL128_H=./source/shader/mandel128.h
+TEXTURE_H=./source/shader/texture.h
 
-gen $MANDEL32_H  $MAIN_VERT $MANDEL32_FRAG  'MAIN_VERT' 'MANDEL32'
-gen $MANDEL64_H  $MAIN_VERT $MANDEL64_FRAG  'MAIN_VERT' 'MANDEL64'
-gen $MANDEL128_H $MAIN_VERT $MANDEL128_FRAG 'MAIN_VERT' 'MANDEL128'
+gen $MANDEL32_H  $MAIN_VERT    $MANDEL32_FRAG  'MAIN_VERT'    'MANDEL32'
+gen $MANDEL64_H  $MAIN_VERT    $MANDEL64_FRAG  'MAIN_VERT'    'MANDEL64'
+gen $MANDEL128_H $MAIN_VERT    $MANDEL128_FRAG 'MAIN_VERT'    'MANDEL128'
+gen $TEXTURE_H   $TEXTURE_VERT $TEXTURE_FRAG   'TEXTURE_VERT' 'TEXTURE_FRAG'

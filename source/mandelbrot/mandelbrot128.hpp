@@ -1,8 +1,8 @@
 #pragma once
 
-#include "renderer.hpp"
+#include "mandelbrot.hpp"
 
-class Mandelbrot128 : public Renderer
+class Mandelbrot128 : public Mandelbrot
 {
 protected:
 	GLint position_re_uniform;

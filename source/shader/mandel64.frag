@@ -1,3 +1,5 @@
+#version 120
+
 #pragma optionNV(fastmath off)
 #pragma optionNV(fastprecision off)
 
@@ -82,15 +84,9 @@ vec4 ds_mandel_sample(vec4 c)
 {
 	int i;
 	vec4 z = vec4(0.0,0.0,0.0,0.0);
-	vec4 zs = vec4(ds_sqr(z.xy),ds_sqr(z.zw));
 	for(i = 0; i < uDepth && abs2(z.xz) < 16.0; ++i) 
 	{
-		z.zw = ds_add(ds_sqr(ds_add(z.xy,z.zw)),-ds_add(zs.xy,zs.zw));
-    z.zw = ds_add(z.zw,c.zw);
-    z.xy = ds_add(ds_add(zs.xy,-zs.zw),c.xy);
-    zs.xy = ds_sqr(z.xy);
-    zs.zw = ds_sqr(z.zw);
-		// z = cds_add(cds_mul(z,z),c);
+		z = cds_add(cds_mul(z,z),c);
 	}
 	if(i == uDepth) 
 	{

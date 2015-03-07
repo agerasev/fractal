@@ -1,20 +1,173 @@
 #include <list>
 
 #include <media/media.h>
-#include "renderer.hpp"
-#include "mandelbrot32.hpp"
-#include "mandelbrot64.hpp"
-#include "mandelbrot128.hpp"
 
-struct State
+#include "renderer.hpp"
+#include "framebuffer.hpp"
+#include "director.hpp"
+
+#include "mandelbrot/mandelbrot32.hpp"
+#include "mandelbrot/mandelbrot64.hpp"
+#include "mandelbrot/mandelbrot128.hpp"
+
+#include "videodirector.hpp"
+
+class State
 {
-	int done;
-	int wait;
+public:
+	int done = false;
+	int wait = false;
 	int width;
 	int height;
-	bool ready;
+	bool ready = false;
 	
-	Renderer *rend;
+	Renderer *rend = nullptr;
+	Framebuffer *fb = nullptr;
+	Director *dir = nullptr;
+	
+	bool explore = false;
+	int counter = 1;
+	
+	void init()
+	{
+		int sw, sh;
+		Mandelbrot *mb;
+		
+		mb = new Mandelbrot64();
+		rend = mb;
+		
+		fb = new Framebuffer();
+		
+		if(explore)
+		{
+			mb->setDepth(512);
+			
+			sw = 800; sh = 600;
+			rend->transform(creal(-0.75,0.0),creal(0.0,-3.0/sh));
+		}
+		else
+		{
+			VideoDirector *vd;
+			
+			mb->setDepth(2048);
+			mb->setSamples(2);
+			
+			sw = 1280; sh = 720;
+			fb->resize(sw,sh);
+			
+			vd = new VideoDirector();
+			dir = vd;
+			
+			dir->setFramebuffer(fb);
+			dir->setRenderer(rend);
+			
+			creal pos = creal(-1.7488727620037225474192155161290429532528l,0.0000000000000000011093511439092270325842l);
+			VideoDirector::Checkpoint 
+			  begin = {pos,creal(0.0,-2.0/sh)},
+			  end = {pos,creal(-0.0000000000000000000000000000000000000000,-0.0000000000000000005551115123125782817674)};
+			
+			vd->addTransition({begin,end,1.0/(30*60)});
+			
+			dir->beginSession();
+		}
+	}
+	
+	void term()
+	{
+		if(explore)
+		{
+			delete dir;
+		}
+		delete rend;
+		rend = nullptr;
+		delete fb;
+		fb = nullptr;
+	}
+	
+	void resize(int w, int h)
+	{
+		width = w;
+		height = h;
+		
+		if(explore)
+		{
+			fb->resize(w,h);
+		}
+		
+		ready = true;
+	}
+	
+	void render()
+	{
+		if(explore)
+		{
+			if(ready && fb && fb->isExists())
+			{
+				printInfo(
+					"p = (%0.40lf,%0.40lf)\nf = (%0.40lf,%0.40lf)\n\n",
+					double(rend->getPosition().re()),
+					double(rend->getPosition().im()),
+					double(rend->getFactor().re()),
+					double(rend->getFactor().im())
+				);
+				fb->render(rend);
+				
+				ready = false;
+			}
+		}
+		else
+		{
+			dir->processSession();
+			
+			char num[6];
+			sprintf(num,"%05d", counter);
+			num[5] = '\0';
+			fb->save(std::string("video/frame") + std::string(num) + std::string(".bmp"));
+			
+			++counter;
+		}
+	}
+	
+	void approach(int x, int y)
+	{
+		if(explore)
+		{
+			/*
+			rend->transform(
+				rend->getPosition() + 
+				rend->getFactor()*creal(
+					(real(x)/width - 0.5l)*fb->getWidth(),
+					(real(y)/height - 0.5l)*fb->getHeight()
+				),
+				rend->getFactor()*0.5l
+			);
+			*/
+			
+			creal p = rend->getPosition();
+			creal f = rend->getFactor();
+			
+			p.im() += 1e-16l;
+			
+			rend->transform(p,f);
+			
+			ready = true;
+		}
+	}
+	
+	void draw()
+	{
+		if(fb && fb->isExists())
+		{
+			if(explore)
+			{
+				fb->draw(width,height);
+			}
+			else
+			{
+				dir->drawPreview(width,height);
+			}
+		}
+	}
 };
 
 void handleAppEvent(Media_App *app, const Media_AppEvent *event)
@@ -49,20 +202,15 @@ void handleSurfaceEvent(Media_App *app, const Media_SurfaceEvent *event)
 	{
 	case MEDIA_SURFACE_INIT:
 		printInfo("Init surface\n");
-		state->rend = new Mandelbrot128();
-		state->rend->transform(0.0,0.01);
+		state->init();
 		break;
 	case MEDIA_SURFACE_TERM:
 		printInfo("Term surface\n");
-		delete state->rend;
-		state->rend = nullptr;
+		state->term();
 		break;
 	case MEDIA_SURFACE_RESIZE:
 		printInfo("Resize surface ( %d, %d )\n",event->w,event->h);
-		state->width = event->w;
-		state->height = event->h;
-		state->rend->resize(event->w,event->h);
-		state->ready = true;
+		state->resize(event->w,event->h);
 		break;
 	default:
 		break;
@@ -79,12 +227,7 @@ void handleMotionEvent(Media_App *app, const Media_MotionEvent *event)
 		break;
 	case MEDIA_ACTION_DOWN:
 		//printInfo("Down\n");
-		state->rend->transform(
-			state->rend->getPosition() + state->rend->getFactor()*creal(real(event->x) - 0.5l*state->rend->getWidth(),0.5l*state->rend->getHeight() - real(event->y)),
-			state->rend->getFactor()*0.5l
-		);
-		printInfo("%le\n",double(state->rend->getFactor().re()));
-		state->ready = true;
+		state->approach(event->x,event->y);
 		break;
 	case MEDIA_ACTION_MOVE:
 		//printInfo("Move\n");
@@ -110,16 +253,12 @@ void handleSensorEvent(Media_App *app, const Media_SensorEvent *event)
 void render(Media_App *app)
 {
 	State *state = static_cast<State*>(app->data);
-	if(state->rend)
-	{
-		state->rend->render();
-		state->ready = false;
-	}
+	state->draw();
 }
 
 int Media_main(Media_App *app)
 {
-	State state = {0,0,0,0,false,nullptr};
+	State state;
 	
 	app->data = static_cast<void*>(&state);
 
@@ -129,7 +268,7 @@ int Media_main(Media_App *app)
 	app->listeners.sensor = &handleSensorEvent;
 
 	app->renderer = &render;
-
+	
 	for(;;)
 	{
 		if(state.wait)
@@ -143,11 +282,9 @@ int Media_main(Media_App *app)
 			break;
 		}
 		
-		if(state.ready)
-		{
-			// printInfo("Frame\n");
-			Media_renderFrame(app);
-		}
+		state.render();
+		
+		Media_renderFrame(app);
 	}
 
 	return 0;

@@ -17,7 +17,8 @@ static void printShaderCompilationErrors(GLuint id, const char *name)
 	}
 }
 
-Renderer::Renderer(const char *vs, const char *fs)
+Renderer::Renderer(const char *vs, const char *fs) 
+  : viewport{0,0,1,1}, samples(1)
 {
 	/* Create buffer */
 	glGenBuffers(1, &buffer);
@@ -52,6 +53,7 @@ Renderer::Renderer(const char *vs, const char *fs)
 	
 	shape_attrib = glGetAttribLocation(program,"aShape");
 	aspect_uniform = glGetUniformLocation(program,"uAspect");
+	viewport_uniform = glGetUniformLocation(program,"uViewport");
 }
 
 Renderer::~Renderer()
@@ -78,14 +80,17 @@ void Renderer::resize(int w, int h)
 	glViewport(0,0,width,height);
 }
 
-int Renderer::getWidth() const
+void Renderer::setSamples(int s)
 {
-    return width;
+	samples = s;
 }
 
-int Renderer::getHeight() const
+void Renderer::setViewport(float x0, float y0, float x1, float y1)
 {
-    return height;
+	viewport[0] = x0;
+	viewport[1] = y0;
+	viewport[2] = x1;
+	viewport[3] = y1;
 }
 
 void Renderer::transform(creal p, creal f)

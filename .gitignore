@@ -12,3 +12,6 @@ desktop/obj
 desktop/app
 
 source/shader/*.h
+video
+
+.fuse_hidden*

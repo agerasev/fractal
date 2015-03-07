@@ -1,6 +1,7 @@
 // emulated quadruple precision GLSL library
 // created by Henry thasler (thasler.org/blog)
 // based on the QD library (http://crd-legacy.lbl.gov/~dhbailey/mpdist/)
+
 #version 120
 
 #pragma optionNV(fastmath off)

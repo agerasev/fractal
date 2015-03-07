@@ -1,8 +1,8 @@
 #pragma once
 
-#include "renderer.hpp"
+#include "mandelbrot.hpp"
 
-class Mandelbrot32 : public Renderer
+class Mandelbrot64 : public Mandelbrot
 {
 protected:
 	GLint position_uniform;
@@ -11,9 +11,8 @@ protected:
 	GLint samples_uniform;
 	
 public:
-	Mandelbrot32();
-	
-	virtual ~Mandelbrot32();
+	Mandelbrot64();
+	virtual ~Mandelbrot64();
 	
 	virtual void render() override;
 };

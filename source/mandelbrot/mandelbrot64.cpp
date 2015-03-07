@@ -3,7 +3,7 @@
 #include "shader/mandel64.h"
 
 Mandelbrot64::Mandelbrot64() : 
-	Renderer(MAIN_VERT_SHADER_SOURCE,MANDEL64_SHADER_SOURCE)
+	Mandelbrot(MAIN_VERT_SHADER_SOURCE,MANDEL64_SHADER_SOURCE)
 {
 	position_uniform = glGetUniformLocation(program,"uPosition");
 	factor_uniform = glGetUniformLocation(program,"uFactor");
@@ -36,10 +36,12 @@ void Mandelbrot64::render()
 	glUseProgram(program);
 	{
 		glUniform2fv(aspect_uniform, 1, aspect);
+		glUniform4fv(viewport_uniform, 1, viewport);
+		
 		glUniform4fv(position_uniform, 1, p);
 		glUniform4fv(factor_uniform, 1, f);
-		glUniform1i(depth_uniform, 256);
-		glUniform1i(samples_uniform, 2);
+		glUniform1i(depth_uniform, depth);
+		glUniform1i(samples_uniform, samples);
 		
 		glEnableVertexAttribArray(shape_attrib);
 		{

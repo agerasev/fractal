@@ -3,7 +3,7 @@
 #include "shader/mandel128.h"
 
 Mandelbrot128::Mandelbrot128() : 
-	Renderer(MAIN_VERT_SHADER_SOURCE,MANDEL128_SHADER_SOURCE)
+	Mandelbrot(MAIN_VERT_SHADER_SOURCE,MANDEL128_SHADER_SOURCE)
 {
 	position_re_uniform = glGetUniformLocation(program,"uPositionRe");
 	position_im_uniform = glGetUniformLocation(program,"uPositionIm");
@@ -60,6 +60,7 @@ void Mandelbrot128::render()
 	glUseProgram(program);
 	{
 		glUniform2fv(aspect_uniform, 1, aspect);
+		glUniform4fv(viewport_uniform, 1, viewport);
 		
 		glUniform4fv(position_re_uniform, 1, p+0);
 		glUniform4fv(position_im_uniform, 1, p+4);
@@ -67,8 +68,8 @@ void Mandelbrot128::render()
 		glUniform4fv(factor_re_uniform, 1, f+0);
 		glUniform4fv(factor_im_uniform, 1, f+4);
 		
-		glUniform1i(depth_uniform, 1024);
-		glUniform1i(samples_uniform, 1);
+		glUniform1i(depth_uniform, depth);
+		glUniform1i(samples_uniform, samples);
 		
 		glEnableVertexAttribArray(shape_attrib);
 		{
